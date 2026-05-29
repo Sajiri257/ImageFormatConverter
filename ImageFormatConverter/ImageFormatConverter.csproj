@@ -10,6 +10,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="1.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="1.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="14.13.1" />
     <PackageReference Include="PDFsharp" Version="6.2.4" />
   </ItemGroup>

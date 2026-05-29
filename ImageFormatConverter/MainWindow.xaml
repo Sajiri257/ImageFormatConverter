@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="ImageConverter" Height="700" Width="1100"
         WindowStartupLocation="CenterScreen"
-        AllowDrop="True" Drop="Window_Drop" DragOver="Window_DragOver">
+        AllowDrop="True" Drop="Window_Drop" DragOver="Window_DragOver"
+        Icon="1.ico">
 
     <Grid>
         <Grid.RowDefinitions>
