@@ -7,8 +7,10 @@
  じしˍ,)ノ
 ```
 
-##### ImageFormatConverter_1.1.0.0_260527_standard
+##### ImageFormatConverter_1.1.0.0_260529_standard
 
 `支持将图片格式转换为其他格式。`
 
 `支持SVG图片格式的颜色的切换。`
+
+`目前不支持SVG格式和PDF格式的图片预览`
