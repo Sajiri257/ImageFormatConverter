@@ -63,7 +63,7 @@ namespace ImageFormatConverter
             }
         }
 
-        private void BtnAddFiles_Click(object sender, System.Windows.DragEventArgs e)
+        private void BtnAddFiles_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             //打开文件对话框
             var dialog = new Microsoft.Win32.OpenFileDialog
@@ -310,5 +310,88 @@ namespace ImageFormatConverter
         }
 
         #endregion 设置与颜色选择
+
+        #region 批量转换
+
+        private async void BtnConvert_Click(object sender, RoutedEventArgs e)
+        {
+            if (_files.Count == 0)
+            {
+                System.Windows.MessageBox.Show("请先添加文件！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            //获取当前转换选项
+            var options = GetCurrentOptions();
+            //显示进度条
+            ProgressBar.Visibility = Visibility.Visible;
+            //设置进度条最大值
+            ProgressBar.Maximum = _files.Count;
+            //设置进度条当前值
+            ProgressBar.Value = 0;
+            //禁用转换按钮,防止重复点击
+            BtnConvert.IsEnabled = false;
+
+            //初始化成功和失败计数器
+            int success = 0, failed = 0;
+            var failedFiles = new List<string>();
+
+            //输出目录不存在就创建
+            if (!Directory.Exists(_outputDirectory))
+            {
+                Directory.CreateDirectory(_outputDirectory);
+            }
+
+            //异步转换文件
+            await System.Threading.Tasks.Task.Run(() =>
+            {
+                //逐个处理每个文件
+                foreach (var file in _files)
+                {
+                    try
+                    {
+                        _service.Convert(file, options, _outputDirectory);
+                        success++;
+                    }
+                    catch (Exception ex)
+                    {
+                        failed++;
+                        failedFiles.Add($"{file.FileName}: {ex.Message}");
+                    }
+                    //更新进度条
+                    Dispatcher.BeginInvoke(() => ProgressBar.Value++);
+                }
+            });
+
+            //转换完成后,隐藏进度条
+            ProgressBar.Visibility = Visibility.Collapsed;
+            BtnConvert.IsEnabled = true;
+            TxtStatus.Text = $"转换完成 | 成功 {success}，失败 {failed}";
+
+            if (failed > 0)
+            {
+                string errorDetail = string.Join("\n", failedFiles.Take(5));
+                if (failedFiles.Count > 5) errorDetail += "\n...";
+
+                System.Windows.MessageBox.Show($"转换完成！\n成功:{success} 个\n失败:{failed} 个\n\n部分错误:\n{errorDetail}\n\n文件已保存到:{_outputDirectory}",
+                    "转换结果", MessageBoxButton.OK, failed > 0 ? MessageBoxImage.Warning : MessageBoxImage.Information);
+            }
+            else
+            {
+                System.Windows.MessageBox.Show($"全部转换成功！共 {success} 个文件。\n\n保存位置:{_outputDirectory}",
+                    "完成", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // 打开输出目录
+                // System.Diagnostics.Process.Start("explorer.exe", _outputDirectory);
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "explorer.exe",
+                    Arguments = $"\"{_outputDirectory}\"",
+                    UseShellExecute = true
+                });
+            }
+        }
+
+        #endregion 批量转换
     }
 }
